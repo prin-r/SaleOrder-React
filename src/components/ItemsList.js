@@ -1,13 +1,14 @@
 import React from 'react';
 import Item from './Item';
+import AddItem from './AddItem';
 import { compose , withState, withHandlers } from 'recompose';
 
-const ItemList = ({ state , addItem , removeAll}) => (
+const ItemList = ({ state , openModal , addItem , removeAll }) => (
     <div>
         Items
         <button onClick={removeAll}>Remove All</button>
         {state.items.map(item => <Item content={item}/>)}
-        <button onClick={addItem}>Add New Item</button>
+        <AddItem addItem={addItem}/>
     </div>
 );
 
