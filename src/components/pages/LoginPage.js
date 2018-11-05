@@ -1,5 +1,6 @@
 import React from 'react';
 import Loadable from 'react-loadable';
+import Footer from '../footer';
 import { compose , withState, withHandlers } from 'recompose';
 
 const Logo = Loadable({
@@ -24,6 +25,7 @@ const LoginPage = ({ state , setUsername , setPassword , onSubmit }) => (
             <Username prefix={"Username"} value={state.username} onChange={setUsername}/>
             <Password prefix={"Password"} value={state.password} onChange={setPassword} type={"password"}/>
             <button onClick={onSubmit}>Login</button>
+            <Footer />
         </center>
     </div>
 );

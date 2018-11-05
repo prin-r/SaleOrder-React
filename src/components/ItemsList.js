@@ -1,32 +1,34 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Item from './Item';
-import AddItem from './AddItem';
-import { compose , withState, withHandlers } from 'recompose';
+import ModalItem from './ModalItem';
+import { compose , withHandlers } from 'recompose';
 
-const ItemList = ({ state , openModal , addItem , removeAll }) => (
+const ItemList = ({ removeAll , reduxState }) => (
     <div>
         Items
         <button onClick={removeAll}>Remove All</button>
-        {state.items.map(item => <Item content={item}/>)}
-        <AddItem addItem={addItem}/>
+        {reduxState.map( (item , i) => <Item index={i} {...item}/>)}
+        <ModalItem title={'New Item Properties'}/>
     </div>
 );
 
-const addState = withState('state','updateState',{ items: [] });
 const addHandlers = withHandlers({
-    addItem: ({ updateState , state }) => event => {
-        updateState({
-            items: [...state.items, state.items.length]
-        });
-    },
-    removeAll:  ({ updateState }) => event => {
-        updateState({
-            items: []
+    removeAll:  ({ dispatch }) => event => {
+        dispatch({
+            type: 'REMOVE_ALL_ITEMS'
         });
     }
 });
 
-export default compose(
-    addState,
-    addHandlers
-)(ItemList);
+const mapStateToProps = (state) => {
+    return {
+        reduxState: state
+    }
+}
+
+export default connect(mapStateToProps)(
+    compose(
+        addHandlers
+    )(ItemList)
+);
