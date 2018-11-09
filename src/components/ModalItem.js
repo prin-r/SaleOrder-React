@@ -1,72 +1,74 @@
 import React from 'react';
 import Modal from 'react-modal';
-import HForm from './horizontalForm';
+import Loadable from 'react-loadable';
+import itemT  from '../templates/itemT';
 import { connect } from 'react-redux';
 import { compose , withState, withHandlers } from 'recompose';
 
-const ModalItem = ({ state , open , close , addItem , title , test }) => (
+const Form = Loadable({
+    loader: () => import('./FormWithHandlers'),
+    loading: () => <div> ...loading </div>
+});
+
+const ModalItem = ({ state , index , open , close , addORsetItem , title , setProperty }) => (
     <div>
-        <button onClick={ open }>Add New Item</button>
+        <button onClick={ open }>{index < 0 ? 'Add New Item' : 'Edit'}</button>
         <Modal
             isOpen={ state.open }
             onRequestClose={ close }
-            contentLabel='Selected Option'
             closeTimeoutMS={200}
             className="modal"
         >
             <h3 className="modal__title">{ title }</h3>
-            <HForm prefix={"Item ID : "} value={''} />
-            <HForm prefix={"Product ID : "} value={''} />
-            <HForm prefix={"Unit Price : "} value={''} />
-            <HForm prefix={"Unit : "} value={''} />
-            <HForm prefix={"Quantity : "} value={''} />
-            <button onClick={test}>Test</button>
-            <button className="button" onClick={ addItem }>Add New Item</button>
+            <p>Item ID : {state.item.itemID}</p>
+            <Form prefix={"Product ID : "} value={state.item.productID} onChange={() => setProperty("productID")} />
+            <Form prefix={"Unit Price : "} value={state.item.unitPrice} onChange={() => setProperty("unitPrice")} />
+            <Form prefix={"Unit : "} value={state.item.unit} onChange={() => setProperty("unit")} />
+            <Form prefix={"Quantity : "} value={state.item.quantity} onChange={() => setProperty("quantity")} />
+            <button className="button" onClick={ addORsetItem }>{index < 0 ? 'Add New Item' : 'Save Change'}</button>
             <button className="button" onClick={ close }>Cancel</button>
         </Modal>
     </div>
 );
 
-const addState = withState('state','updateState',{ 
-    open: false,
-    itemID: "",
-    productID: "",
-    uintPrice: "",
-    uint: "",
-    quantity: ""
-});
+const addState = withState('state','updateState', props => ({ open: false, item: props.item || itemT() }));
 
 const addHandlers = withHandlers({
-    test: ({ updateState , state }) => event => {
-        console.log(state);
-    }, 
-    addItem: ({ dispatch , updateState }) => event => {
-        dispatch({
-            type: 'ADD_ITEM',
-            item: {
-                itemID: '999999'
-            }
-        });
-        updateState({
-            open: false
-        });
+    setProperty: ({ updateState , state }) => property => {
+        const item = {...state.item , [property]: event.target.value };
+        updateState({...state, item});
     },
-    open: ({ updateState , state }) => event => {
-        const open = {open: true};
-        console.log(state);
-        //const merge = {...state, ...open};
-        updateState(open);
-    },    
-    close: ({ updateState }) => event => {
+    addORsetItem: ({ dispatch , updateState , state , index , items , customerid , username }) => event => {
+        const type = (index < 0) ? 'ADD_ITEM' : 'SET_ITEM';
+        const { item } = state;
+        dispatch({ type: type, item: item, index: index });
         updateState({
-            open: false
+            ...state,
+            open: false,
+            item: (type === 'ADD_ITEM') ? itemT() : item
         });
+        const userData = {
+            customerid: customerid,
+            items: (type === 'ADD_ITEM') ? [...items , item] : [...items.slice(0, index), item,...items.slice(index+1)] 
+        };
+        localStorage.setItem( username , JSON.stringify(userData));
+    },
+    open: ({ updateState , item }) => event => {
+        updateState({ open: true , item: item || itemT() });
+    },    
+    close: ({ updateState, state }) => event => {
+        updateState({...state, open: false });
     }
 });
 
-export default connect()(
-    compose(
-        addState,
-        addHandlers
-    )(ModalItem)
-);
+const mapStateToProps = ({ items , customerid , username }) => ({
+    customerid: customerid,
+    items: items,
+    username: username
+});
+
+export default compose(
+    connect(mapStateToProps),
+    addState,
+    addHandlers
+)(ModalItem);

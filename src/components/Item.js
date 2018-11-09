@@ -1,56 +1,38 @@
 import React from 'react';
+import Loadable from 'react-loadable';
 import { connect } from 'react-redux';
-import { compose , withState, withHandlers } from 'recompose';
+import { compose , withHandlers } from 'recompose';
 
-const Item = ({ state, itemID , index , edit , remove }) => (
+const ModalItem = Loadable({
+    loader: () => import('./ModalItem'),
+    loading: () => <div> ...loading </div>
+});
+
+const Item = ({ itemID ,productID , unitPrice , unit , quantity , index , remove , isActive = true}) => (
     <div>
-        {index}
-        {itemID}
-        <button onClick={edit}>edit</button>
-        <button onClick={remove}>remove</button>
+        <span> {itemID} </span>
+        <span> {productID} </span>
+        <span> {unitPrice} </span>
+        <span> {unit} </span>
+        <span> {quantity} </span>
+        {isActive && <ModalItem title={'Edit Item Properties'} index={index} item={{
+            itemID: itemID,
+            productID: productID,
+            unitPrice: unitPrice,
+            unit: unit,
+            quantity:quantity
+        }}/>}
+        {isActive && <button onClick={remove}>remove</button>}
     </div>
 );
 
-const addState = withState('state','updateState',{ 
-    itemID: "",
-    productID: "",
-    uintPrice: "",
-    uint: "",
-    quantity: ""
- });
-
 const addHandlers = withHandlers({
-    edit: ({ dispatch , index }) => event => {
-        console.log(index);
-        dispatch({
-            type: 'SET_ITEM',
-            index: index,
-            item: {
-                itemID: '99999'
-            }
-        });
-    },
     remove: ({ dispatch , index }) => event => {
-        console.log(index);
         dispatch({
             type: 'REMOVE_ITEM',
             index: index
         });
-    },
-    update: ({ updateState , newItem }) => event => {
-        updateState({
-            itemID: newItem.itemID,
-            productID: newItem.productID,
-            unitPrice: newItem.uintPrice,
-            unit: newItem.uint,
-            quantity: newItem.quantity
-        });
     }
 });
 
-export default connect()(
-    compose(
-        addState,
-        addHandlers
-    )(Item)
-);
+export default compose(connect(), addHandlers)(Item);

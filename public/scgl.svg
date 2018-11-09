@@ -1,5 +1,5 @@
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="1600px" height="1600px" viewBox="0 0 16000 16000" preserveAspectRatio="xMidYMid meet">
+<!DOCTYPE svg PUBLIC "local" "http://127.0.0.1">
+<svg version="1.0" xmlns="http://127.0.0.1" width="1600px" height="1600px" viewBox="0 0 16000 16000" preserveAspectRatio="xMidYMid meet">
 <g id="layer101" fill="#e22227" stroke="none">
  <path d="M0 8000 l0 -8000 8000 0 8000 0 0 8000 0 8000 -8000 0 -8000 0 0 -8000z"/>
  </g>
